@@ -105,9 +105,10 @@ pub fn foldings(dim: &[usize]) -> usize {
 		if !gapter.is_empty() {
 			g -= 1;
 			// insert in linked list?
-			let mut l = leafs[gapter.len()];
-			l.above = gaps[g];
-			l.below = leafs[l.above].below;
+			leafs[gapter.len()].above = gaps[g];
+			leafs[gapter.len()].below = leafs[gaps[g]].below;
+
+			let l = leafs[gapter.len()];
 			leafs[l.above].below = gapter.len();
 			leafs[l.below].above = gapter.len();
 
