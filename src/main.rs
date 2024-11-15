@@ -1,8 +1,9 @@
 use std::time::Instant;
 
-use a001415::foldings;
+use foldings::foldings;
 
-mod a001415;
+mod foldings;
+mod iters;
 
 fn main() {
 	// let mut prev = Instant::now();
@@ -10,8 +11,6 @@ fn main() {
 	// 	println!("{i:>2}: {n} (took {:?})", prev.elapsed());
 	// 	prev = Instant::now();
 	// }
-
-	// let n = 5;
 
 	let time_start = Instant::now();
 	let value = foldings(&[12, 2]);
