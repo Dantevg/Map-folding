@@ -23,7 +23,7 @@ pub fn foldings(dim: &[usize]) -> usize {
 	let mut a = vec![0; n + 1];
 	let mut b = vec![0; n + 1];
 	let mut count = vec![0; n + 1];
-	let mut gapter = vec![0; n + 1];
+	let mut gapter = vec![0];
 	let mut gap = vec![0; n * n + 1];
 
 	let mut p = vec![0; dim.len() + 1];
@@ -63,17 +63,16 @@ pub fn foldings(dim: &[usize]) -> usize {
 	}
 
 	let mut g = 0;
-	let mut l = 1;
-
 	let mut n_foldings = 0;
 
-	while l > 0 {
+	while !gapter.is_empty() {
+		let l = gapter.len();
 		if l <= 1 || b[0] == 1 {
 			if l > n {
 				n_foldings += n;
 			} else {
 				let mut dd = 0;
-				let mut gg = gapter[l - 1];
+				let mut gg = gapter.last().unwrap().to_owned();
 				g = gg;
 
 				for i in 1..=dim.len() {
@@ -109,20 +108,20 @@ pub fn foldings(dim: &[usize]) -> usize {
 			}
 		}
 
-		while l > 0 && g == gapter[l - 1] {
-			l -= 1;
-			b[a[l]] = b[l];
-			a[b[l]] = a[l];
+		while gapter.last().is_some_and(|&x| x == g) {
+			gapter.pop();
+			b[a[gapter.len()]] = b[gapter.len()];
+			a[b[gapter.len()]] = a[gapter.len()];
 		}
 
-		if l > 0 {
+		if !gapter.is_empty() {
+			let l = gapter.len();
 			g -= 1;
 			a[l] = gap[g];
 			b[l] = b[a[l]];
 			b[a[l]] = l;
 			a[b[l]] = l;
-			gapter[l] = g;
-			l += 1;
+			gapter.push(g);
 		}
 	}
 
