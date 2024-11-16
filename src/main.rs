@@ -14,6 +14,6 @@ fn main() {
 	// }
 
 	let time_start = Instant::now();
-	let value = foldings(&[2, 2]);
+	let value = foldings(&[5, 5]);
 	println!("{value} (took {:?})", time_start.elapsed());
 }

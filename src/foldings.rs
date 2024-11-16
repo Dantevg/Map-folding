@@ -14,40 +14,13 @@ pub fn foldings(shape: &[usize]) -> usize {
 	let mut gapter = vec![0];
 	let mut gaps = vec![0; n * n + 1];
 
-	let mut p = vec![0; n_dim + 1];
-	let mut c = vec![vec![0; n + 1]; n_dim + 1];
-	let mut d = vec![vec![vec![0; n + 1]; n + 1]; n_dim + 1];
-
-	p[0] = 1;
-	for i in 1..=n_dim {
-		p[i] = p[i - 1] * shape[i - 1];
-	}
-
-	for i in 1..=n_dim {
-		for m in 1..=n {
-			c[i][m] = (m - 1) / p[i - 1] - ((m - 1) / p[i]) * shape[i - 1] + 1;
-		}
-	}
-
-	for i in 1..=n_dim {
-		for l in 1..=n {
-			for m in 1..=l {
-				d[i][l][m] = if c[i][l] & 1 == c[i][m] & 1 {
-					if c[i][m] == 1 {
-						m
-					} else {
-						m - p[i - 1]
-					}
-				} else {
-					if c[i][m] == shape[i - 1] || m + p[i - 1] > l {
-						m
-					} else {
-						m + p[i - 1]
-					}
-				}
-			}
-		}
-	}
+	let d: Vec<Vec<Vec<usize>>> = (0..=n_dim)
+		.map(|i| {
+			(0..=n)
+				.map(|l| (0..=l).map(|m| d_fn(i, l, m, shape)).collect())
+				.collect()
+		})
+		.collect();
 
 	let mut g = 0; // number of actual gaps for leaf l + last gapter
 	let mut n_foldings = 0;
@@ -118,6 +91,33 @@ pub fn foldings(shape: &[usize]) -> usize {
 	}
 
 	n_foldings
+}
+
+fn p_fn(i: usize, shape: &[usize]) -> usize {
+	shape.iter().take(i).fold(1, |a, b| a * b)
+}
+
+fn c_fn(i: usize, m: usize, shape: &[usize]) -> usize {
+	(m - 1) / p_fn(i - 1, shape) - ((m - 1) / p_fn(i, shape)) * shape[i - 1] + 1
+}
+
+fn d_fn(i: usize, l: usize, m: usize, shape: &[usize]) -> usize {
+	if i == 0 || l == 0 || m == 0 {
+		return 0;
+	}
+	if c_fn(i, l, shape) & 1 == c_fn(i, m, shape) & 1 {
+		if c_fn(i, m, shape) == 1 {
+			m
+		} else {
+			m - p_fn(i - 1, shape)
+		}
+	} else {
+		if c_fn(i, m, shape) == shape[i - 1] || m + p_fn(i - 1, shape) > l {
+			m
+		} else {
+			m + p_fn(i - 1, shape)
+		}
+	}
 }
 
 #[cfg(test)]
