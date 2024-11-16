@@ -52,10 +52,8 @@ pub fn foldings(shape: &[usize]) -> usize {
 				}
 
 				if dd == n_dim {
-					for m in 0..l {
-						gaps[gg] = m;
-						gg += 1;
-					}
+					gaps[gg..gg + l].copy_from_slice(&(0..l).collect::<Vec<usize>>());
+					gg += l;
 				}
 
 				for j in g..gg {
