@@ -1,34 +1,35 @@
-#[derive(Default, Clone, Copy)]
+#[derive(Debug, Default, Clone, Copy)]
 struct Leaf {
 	above: usize,
 	below: usize,
 	count: usize,
 }
 
-pub fn foldings(dim: &[usize]) -> usize {
-	let n = dim.iter().fold(1, |a, b| a * b) as usize;
+pub fn foldings(shape: &[usize]) -> usize {
+	let n = shape.iter().fold(1, |a, b| a * b) as usize;
+	let n_dim = shape.len();
 
 	let mut leafs: Vec<Leaf> = vec![Leaf::default(); n + 1];
 
 	let mut gapter = vec![0];
 	let mut gaps = vec![0; n * n + 1];
 
-	let mut p = vec![0; dim.len() + 1];
-	let mut c = vec![vec![0; n + 1]; dim.len() + 1];
-	let mut d = vec![vec![vec![0; n + 1]; n + 1]; dim.len() + 1];
+	let mut p = vec![0; n_dim + 1];
+	let mut c = vec![vec![0; n + 1]; n_dim + 1];
+	let mut d = vec![vec![vec![0; n + 1]; n + 1]; n_dim + 1];
 
 	p[0] = 1;
-	for i in 1..=dim.len() {
-		p[i] = p[i - 1] * dim[i - 1];
+	for i in 1..=n_dim {
+		p[i] = p[i - 1] * shape[i - 1];
 	}
 
-	for i in 1..=dim.len() {
+	for i in 1..=n_dim {
 		for m in 1..=n {
-			c[i][m] = (m - 1) / p[i - 1] - ((m - 1) / p[i]) * dim[i - 1] + 1;
+			c[i][m] = (m - 1) / p[i - 1] - ((m - 1) / p[i]) * shape[i - 1] + 1;
 		}
 	}
 
-	for i in 1..=dim.len() {
+	for i in 1..=n_dim {
 		for l in 1..=n {
 			for m in 1..=l {
 				d[i][l][m] = if c[i][l] & 1 == c[i][m] & 1 {
@@ -38,7 +39,7 @@ pub fn foldings(dim: &[usize]) -> usize {
 						m - p[i - 1]
 					}
 				} else {
-					if c[i][m] == dim[i - 1] || m + p[i - 1] > l {
+					if c[i][m] == shape[i - 1] || m + p[i - 1] > l {
 						m
 					} else {
 						m + p[i - 1]
@@ -61,23 +62,23 @@ pub fn foldings(dim: &[usize]) -> usize {
 				let mut dd = 0; // number of sections in which leaf l is unconstrained
 				let mut gg = g; // number of possible gaps for leaf l + last gapter
 
-				for i in 1..=dim.len() {
-					if d[i][l][l] == l {
+				for dim in d.iter().skip(1) {
+					if dim[l][l] == l {
 						dd += 1;
 					} else {
-						let mut m = d[i][l][l];
+						let mut m = dim[l][l];
 						while m != l {
 							gaps[gg] = m;
 							if leafs[m].count == 0 {
 								gg += 1;
 							}
 							leafs[m].count += 1;
-							m = d[i][l][leafs[m].below];
+							m = dim[l][leafs[m].below];
 						}
 					}
 				}
 
-				if dd == dim.len() {
+				if dd == n_dim {
 					for m in 0..l {
 						gaps[gg] = m;
 						gg += 1;
@@ -86,7 +87,7 @@ pub fn foldings(dim: &[usize]) -> usize {
 
 				for j in g..gg {
 					gaps[g] = gaps[j];
-					if leafs[gaps[j]].count == dim.len() - dd {
+					if leafs[gaps[j]].count == n_dim - dd {
 						g += 1;
 					}
 					leafs[gaps[j]].count = 0;
